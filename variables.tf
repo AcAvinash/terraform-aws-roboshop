@@ -15,9 +15,9 @@ variable "zone_name" {
 }
 
 variable "component" {
-
+  type = string
 }
 
 variable "rule_priority" {
-    
+    type = number
 }
