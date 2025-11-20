@@ -48,7 +48,7 @@ resource "terraform_data" "main" {
 
   provisioner "remote-exec" {
     inline = [
-       "sudo yum install -y dos2unix",
+      "sudo yum install -y dos2unix",
       "sudo dos2unix /tmp/${var.component}.sh",
       "chmod +x /tmp/${var.component}.sh",
       "sudo sh /tmp/${var.component}.sh ${var.component} ${var.environment}"
@@ -63,7 +63,7 @@ resource "aws_ec2_instance_state" "main" {
 }
 
 resource "aws_ami_from_instance" "main" {
-  name               = "${var.project}-${var.environment}-${var.component}"
+  name               = "${var.project}-${var.environment}-${var.component}-${random_id.main_lt_suffix.hex}"
   source_instance_id = aws_instance.main.id
   depends_on = [aws_ec2_instance_state.main]
   tags = merge(
@@ -87,8 +87,14 @@ resource "terraform_data" "main_delete" {
   depends_on = [aws_ami_from_instance.main]
 }
 
+resource "random_id" "main_lt_suffix" {
+  byte_length = 4
+}
+
+
+
 resource "aws_launch_template" "main" {
-  name = "${var.project}-${var.environment}-${var.component}"
+  name = "${var.project}-${var.environment}-${var.component}-${random_id.main_lt_suffix.hex}"
 
   image_id = aws_ami_from_instance.main.id
   instance_initiated_shutdown_behavior = "terminate"
